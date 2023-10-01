@@ -1,2 +1,8 @@
 server:
   port: 8081
+
+mqtt:
+  broker:
+    url: tcp://localhost:1883
+  topic: vehicle-events-topic
+

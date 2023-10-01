@@ -1,13 +1,14 @@
 package com.intuit.demo.dataemitters.simulator.service.impl;
 
 import com.intuit.demo.dataemitters.simulator.service.LocationService;
+import com.intuit.demo.dataemitters.simulator.service.NotificationService;
 import com.intuit.demo.dataemitters.simulator.service.RegiseredVehicle;
 import com.intuit.demo.dataemitters.simulator.service.dto.Vehicle;
 import com.intuit.demo.dataemitters.simulator.service.dto.VehicleState;
 import com.intuit.demo.dataemitters.simulator.service.scheduler.Scheduler;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.stereotype.Service;
-import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,11 +19,13 @@ public class RoadVehicleService implements RegiseredVehicle {
 
     private final Scheduler scheduler;
     private final LocationService<Double, Double> locationService;
+    private final NotificationService<Vehicle> notificationService;
     private ConcurrentHashMap<String, Vehicle> threadSafeMap = new ConcurrentHashMap<>();
 
-    public RoadVehicleService(Scheduler scheduler, LocationService locationService) {
+    public RoadVehicleService(Scheduler scheduler, LocationService locationService, NotificationService notificationService) {
         this.scheduler = scheduler;
         this.locationService = locationService;
+        this.notificationService = notificationService;
     }
 
     @Override
@@ -38,7 +41,7 @@ public class RoadVehicleService implements RegiseredVehicle {
                 .build();
         threadSafeMap.computeIfAbsent(registrationNumber, (k) -> v);
         log.info("total vehicles running {}", threadSafeMap.size());
-        if(scheduler.startScheduledExecutorService(registrationNumber, () -> execute(registrationNumber))) {
+        if(scheduler.startScheduledExecutorService(registrationNumber, () -> execute(registrationNumber, notificationService))) {
             log.info("vehicle state :: {} {}", v.getStatus(), v);
         }
     }
@@ -76,7 +79,7 @@ public class RoadVehicleService implements RegiseredVehicle {
         }
     }
 
-    private void execute(String registrationNumber) {
+    private void execute(String registrationNumber, NotificationService notificationService)  {
 
         if(threadSafeMap.containsKey(registrationNumber)) {
             var vehicle = threadSafeMap.get(registrationNumber);
@@ -122,6 +125,12 @@ public class RoadVehicleService implements RegiseredVehicle {
                 } catch (Exception e) {
                     vehicle.setStatus(VehicleState.PARKING.name());
                     log.info("vehicle state :: {} {}", threadSafeMap.get(registrationNumber).getStatus(), threadSafeMap.get(registrationNumber));
+                }
+
+                try{
+                    notificationService.publish(vehicle);
+                } catch (Exception e) {
+                    log.error("exception on publish",e);
                 }
             }
         } else {
