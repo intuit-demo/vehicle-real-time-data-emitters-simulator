@@ -1,5 +1,7 @@
 package com.intuit.demo.dataemitters.simulator.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intuit.demo.dataemitters.simulator.service.NotificationService;
 import com.intuit.demo.dataemitters.simulator.service.dto.Vehicle;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -19,30 +22,24 @@ public class MqttNotificationService implements NotificationService<Vehicle> {
     @Value("${mqtt.topic}")
     private String topic;
     private final MqttClient mqttClient;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     public MqttNotificationService(MqttClient mqttClient) {
         this.mqttClient = mqttClient;
     }
 
     @Override
-    public void publish(Vehicle message) throws MqttException {
+    public void publish(Vehicle message) throws MqttException, JsonProcessingException {
         log.info("message notified to backend {}", message);
 
         MqttMessage mqttMessage = new MqttMessage(getBytes(message));
+        //MqttMessage mqttMessage = new MqttMessage( UUID.randomUUID().toString().getBytes());
         mqttMessage.setQos(0);
-
+        mqttMessage.setRetained(true);
         mqttClient.publish(topic, mqttMessage);
     }
 
-    private byte[] getBytes(Vehicle vehicle) {
-        byte[] ret = new byte[0];
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-            objectOutputStream.writeObject(vehicle);
-            ret =  byteArrayOutputStream.toByteArray();
-        } catch (Exception e) {
-            log.error("exception on converting to bytes",e);
-        }
-        return ret;
+    private byte[] getBytes(Vehicle vehicle) throws JsonProcessingException {
+        return objectMapper.writeValueAsBytes(vehicle);
     }
 }
