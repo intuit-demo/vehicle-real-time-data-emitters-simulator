@@ -50,9 +50,9 @@ public class RoadVehicleService implements RegiseredVehicle {
     public void ignitionOff(String registrationNumber) {
 
         if(threadSafeMap.containsKey(registrationNumber)) {
-            scheduler.stopScheduledExecutorService(registrationNumber);
             var v = threadSafeMap.get(registrationNumber);
             v.setStatus(VehicleState.IGNITION_OFF.name());
+            scheduler.stopScheduledExecutorService(registrationNumber);
             log.info("vehicle state :: {} {}", threadSafeMap.get(registrationNumber).getStatus(), threadSafeMap.get(registrationNumber));
             threadSafeMap.remove(registrationNumber);
         }

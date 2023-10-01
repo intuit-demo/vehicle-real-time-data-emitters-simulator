@@ -27,20 +27,14 @@ public class GeoLocationService implements LocationService<Double, Double> {
         double latitude = latLong.getT1();
         double longitude = latLong.getT2();
 
-        for (; ; ) {
-            double latitudeChange = getRandomDoubleInRange(-0.01, 0.01); // Adjust the range as needed
-            double longitudeChange = getRandomDoubleInRange(-0.01, 0.01); // Adjust the range as needed
-            latitude += latitudeChange;
-            longitude += longitudeChange;
+        double latitudeChange = getRandomDoubleInRange(-0.01, 0.01); // Adjust the range as needed
+        double longitudeChange = getRandomDoubleInRange(-0.01, 0.01); // Adjust the range as needed
+        latitude += latitudeChange;
+        longitude += longitudeChange;
 
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return Tuples.of(latitude, longitude);
-            }
-        }
+        return Tuples.of(latitude, longitude);
+    }
+
     private  double getRandomDoubleInRange(double min, double max) {
         Random r = new Random();
         return min + (max - min) * r.nextDouble();
