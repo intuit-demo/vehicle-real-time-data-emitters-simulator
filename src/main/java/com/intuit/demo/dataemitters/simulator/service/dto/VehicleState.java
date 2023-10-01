@@ -3,9 +3,9 @@ package com.intuit.demo.dataemitters.simulator.service.dto;
 public enum VehicleState {
     IGNITION_ON,
     IGNITION_OFF,
-    INCREASE_ACCELERATE,
+    PRESS_ACCELERATE,
     RUNNING,
-
-    DECREASE_ACCELERATE
-
+    RELEASE_ACCELERATE,
+    PARKING,
+    BREAKDOWN,
 }

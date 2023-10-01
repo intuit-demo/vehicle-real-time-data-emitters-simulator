@@ -7,6 +7,8 @@ import com.intuit.demo.dataemitters.simulator.service.dto.VehicleState;
 import com.intuit.demo.dataemitters.simulator.service.scheduler.Scheduler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,7 +60,19 @@ public class RoadVehicleService implements RegiseredVehicle {
     public void accelerate(String registrationNumber) {
         if(threadSafeMap.containsKey(registrationNumber)) {
             var v = threadSafeMap.get(registrationNumber);
-            v.setStatus(VehicleState.INCREASE_ACCELERATE.name());
+            v.setStatus(VehicleState.PRESS_ACCELERATE.name());
+        } else {
+            log.info("Vehicle is not running ....");
+        }
+    }
+
+    @Override
+    public void slowDown(String registrationNumber) {
+        if(threadSafeMap.containsKey(registrationNumber)) {
+            var v = threadSafeMap.get(registrationNumber);
+            v.setStatus(VehicleState.RELEASE_ACCELERATE.name());
+        } else {
+            log.info("Vehicle is not running ....");
         }
     }
 
@@ -73,19 +87,41 @@ public class RoadVehicleService implements RegiseredVehicle {
                     if(threadSafeMap.containsKey(registrationNumber)) {
 
                         vehicle = threadSafeMap.get(registrationNumber);
-                        if(vehicle.getStatus().equals(VehicleState.INCREASE_ACCELERATE.name())) {
-                            vehicle.setSpeed(vehicle.getSpeed() + 5.00);
-                        } else if(vehicle.getStatus().equals(VehicleState.DECREASE_ACCELERATE.name())) {
-                            vehicle.setSpeed(vehicle.getSpeed() - 1.00);
-                        }
 
+                        var tp =  locationService.getCurrentLocation(Tuples.of(vehicle.getLatitude(), vehicle.getLongitude()));
+
+                        vehicle.setLatitude(tp.getT1());
+                        vehicle.setLongitude(tp.getT2());
+
+                        if(vehicle.getFuel() < 0) {
+                            vehicle.setStatus(VehicleState.BREAKDOWN.name());
+                        }
+                        if(vehicle.getSpeed() < 0) {
+                            vehicle.setStatus(VehicleState.PARKING.name());
+                        }
+                        if(vehicle.getStatus().equals(VehicleState.PRESS_ACCELERATE.name())) {
+                            vehicle.setSpeed(vehicle.getSpeed() + 1.00);
+                            if(vehicle.getFuel() > 0) {
+                                vehicle.setFuel(vehicle.getFuel() - 0.5);
+                            }
+                        } else if(vehicle.getStatus().equals(VehicleState.RELEASE_ACCELERATE.name())) {
+                            vehicle.setSpeed(vehicle.getSpeed() - 1.00);
+                            if(vehicle.getFuel() > 0) {
+                                vehicle.setFuel(vehicle.getFuel() - 0.2);
+                            }
+                        } else {
+                            if(vehicle.getFuel() > 0) {
+                                vehicle.setFuel(vehicle.getFuel() - 0.1);
+                            }
+                        }
                         log.info("vehicle state :: {} {}", threadSafeMap.get(registrationNumber).getStatus(), threadSafeMap.get(registrationNumber));
                         Thread.sleep(5000);
                     } else {
                         break;
                     }
                 } catch (Exception e) {
-                    log.info("Vehicle {} still stopping .... ", registrationNumber);
+                    vehicle.setStatus(VehicleState.PARKING.name());
+                    log.info("vehicle state :: {} {}", threadSafeMap.get(registrationNumber).getStatus(), threadSafeMap.get(registrationNumber));
                 }
             }
         } else {

@@ -33,7 +33,6 @@ public class GeoLocationService implements LocationService<Double, Double> {
             latitude += latitudeChange;
             longitude += longitudeChange;
 
-            log.info("Latitude: {}, Longitude: {}", latitude, longitude);
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {

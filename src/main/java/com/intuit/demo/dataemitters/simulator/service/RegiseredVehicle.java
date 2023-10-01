@@ -7,4 +7,6 @@ public interface RegiseredVehicle {
     void ignitionOff(String registrationNumber);
 
     void accelerate(String registrationNumber);
+
+    void slowDown(String registrationNumber);
 }
