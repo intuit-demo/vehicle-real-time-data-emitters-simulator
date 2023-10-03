@@ -1,6 +1,6 @@
 package com.intuit.demo.dataemitters.simulator.service;
 
-public interface RegiseredVehicle {
+public interface RegisteredVehicleService {
 
     void ignitionOn(String registrationNumber);
 

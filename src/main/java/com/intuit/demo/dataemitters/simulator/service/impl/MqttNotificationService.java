@@ -33,7 +33,6 @@ public class MqttNotificationService implements NotificationService<Vehicle> {
         log.info("message notified to backend {}", message);
 
         MqttMessage mqttMessage = new MqttMessage(getBytes(message));
-        //MqttMessage mqttMessage = new MqttMessage( UUID.randomUUID().toString().getBytes());
         mqttMessage.setQos(0);
         mqttMessage.setRetained(true);
         mqttClient.publish(topic, mqttMessage);

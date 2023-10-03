@@ -29,7 +29,7 @@ public class MqttConfigs {
 
     @Bean("mqttClient")
     public MqttClient mqttClient() throws MqttException {
-        MqttClient client = new MqttClient(brokerUrl, "test-1");
+        MqttClient client = new MqttClient(brokerUrl, "publisher-1");
         MqttConnectOptions options = new MqttConnectOptions();
         options.setMaxInflight(1000);
         client.setCallback(new MqttCallback() {

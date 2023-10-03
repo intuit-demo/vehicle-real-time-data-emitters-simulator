@@ -2,27 +2,29 @@ package com.intuit.demo.dataemitters.simulator.service.impl;
 
 import com.intuit.demo.dataemitters.simulator.service.LocationService;
 import com.intuit.demo.dataemitters.simulator.service.NotificationService;
-import com.intuit.demo.dataemitters.simulator.service.RegiseredVehicle;
+import com.intuit.demo.dataemitters.simulator.service.RegisteredVehicleService;
 import com.intuit.demo.dataemitters.simulator.service.dto.Vehicle;
 import com.intuit.demo.dataemitters.simulator.service.dto.VehicleState;
 import com.intuit.demo.dataemitters.simulator.service.scheduler.Scheduler;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.stereotype.Service;
 import reactor.util.function.Tuples;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
-public class RoadVehicleService implements RegiseredVehicle {
+public class RoadVehicleServiceService implements RegisteredVehicleService {
 
     private final Scheduler scheduler;
     private final LocationService<Double, Double> locationService;
     private final NotificationService<Vehicle> notificationService;
     private ConcurrentHashMap<String, Vehicle> threadSafeMap = new ConcurrentHashMap<>();
 
-    public RoadVehicleService(Scheduler scheduler, LocationService locationService, NotificationService notificationService) {
+    public RoadVehicleServiceService(Scheduler scheduler, LocationService locationService, NotificationService notificationService) {
         this.scheduler = scheduler;
         this.locationService = locationService;
         this.notificationService = notificationService;
@@ -32,12 +34,14 @@ public class RoadVehicleService implements RegiseredVehicle {
     public void ignitionOn(String registrationNumber) {
         var t = locationService.getCurrentLocation();
         var v = Vehicle.builder()
+                .uuid(UUID.randomUUID().toString())
                 .fuel(100.00)
                 .speed(20.00)
                 .latitude(t.getT1())
                 .longitude(t.getT2())
                 .registrationNumber(registrationNumber)
                 .status(VehicleState.IGNITION_ON.name())
+                .lastKnowGeoLocation(new Vehicle.LastKnowGeoLocation())
                 .build();
         threadSafeMap.computeIfAbsent(registrationNumber, (k) -> v);
         log.info("total vehicles running {}", threadSafeMap.size());
@@ -93,6 +97,9 @@ public class RoadVehicleService implements RegiseredVehicle {
 
                         var tp =  locationService.getCurrentLocation(Tuples.of(vehicle.getLatitude(), vehicle.getLongitude()));
 
+                        vehicle.getLastKnowGeoLocation().setLatitude(vehicle.getLatitude());
+                        vehicle.getLastKnowGeoLocation().setLongitude(vehicle.getLongitude());
+
                         vehicle.setLatitude(tp.getT1());
                         vehicle.setLongitude(tp.getT2());
 
@@ -128,6 +135,7 @@ public class RoadVehicleService implements RegiseredVehicle {
                 }
 
                 try{
+                    vehicle.setTimestamp(LocalDateTime.now(ZoneOffset.UTC).toString());
                     notificationService.publish(vehicle);
                 } catch (Exception e) {
                     log.error("exception on publish",e);

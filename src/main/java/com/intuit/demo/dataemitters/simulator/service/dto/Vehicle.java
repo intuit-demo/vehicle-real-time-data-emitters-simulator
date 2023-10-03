@@ -13,10 +13,23 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class Vehicle implements Serializable {
 
+    private String uuid;
     private String registrationNumber;
-    private String status;
     private Double latitude;
     private Double longitude;
+    private String status;
     private Double speed;
     private Double fuel;
+    private String timestamp;
+    private LastKnowGeoLocation lastKnowGeoLocation;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class LastKnowGeoLocation {
+        private Double latitude;
+        private Double longitude;
+    }
+
 }
