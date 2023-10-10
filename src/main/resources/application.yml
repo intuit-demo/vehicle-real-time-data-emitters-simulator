@@ -4,5 +4,5 @@ server:
 mqtt:
   broker:
     url: tcp://localhost:1883
-  topic: vehicle-events-topic
+  topic: vehicle.events.topic
 

@@ -3,7 +3,7 @@ package com.intuit.demo.dataemitters.simulator.service.impl;
 import com.intuit.demo.dataemitters.simulator.service.LocationService;
 import com.intuit.demo.dataemitters.simulator.service.NotificationService;
 import com.intuit.demo.dataemitters.simulator.service.RegisteredVehicleService;
-import com.intuit.demo.dataemitters.simulator.service.dto.Vehicle;
+import com.intuit.demo.dataemitters.simulator.service.dto.VehicleRealTimeEvent;
 import com.intuit.demo.dataemitters.simulator.service.dto.VehicleState;
 import com.intuit.demo.dataemitters.simulator.service.scheduler.Scheduler;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,8 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
 
     private final Scheduler scheduler;
     private final LocationService<Double, Double> locationService;
-    private final NotificationService<Vehicle> notificationService;
-    private ConcurrentHashMap<String, Vehicle> threadSafeMap = new ConcurrentHashMap<>();
+    private final NotificationService<VehicleRealTimeEvent> notificationService;
+    private ConcurrentHashMap<String, VehicleRealTimeEvent> threadSafeMap = new ConcurrentHashMap<>();
 
     public RoadVehicleServiceService(Scheduler scheduler, LocationService locationService, NotificationService notificationService) {
         this.scheduler = scheduler;
@@ -33,15 +33,15 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
     @Override
     public void ignitionOn(String registrationNumber) {
         var t = locationService.getCurrentLocation();
-        var v = Vehicle.builder()
+        var v = VehicleRealTimeEvent.builder()
                 .uuid(UUID.randomUUID().toString())
                 .fuel(100.00)
-                .speed(20.00)
+                .speed(69.00)
                 .latitude(t.getT1())
                 .longitude(t.getT2())
                 .registrationNumber(registrationNumber)
                 .status(VehicleState.IGNITION_ON.name())
-                .lastKnowGeoLocation(new Vehicle.LastKnowGeoLocation())
+                .lastKnowGeoLocation(new VehicleRealTimeEvent.LastKnowGeoLocation())
                 .build();
         threadSafeMap.computeIfAbsent(registrationNumber, (k) -> v);
         log.info("total vehicles running {}", threadSafeMap.size());

@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vehicle implements Serializable {
+public class VehicleRealTimeEvent implements Serializable {
 
     private String uuid;
     private String registrationNumber;

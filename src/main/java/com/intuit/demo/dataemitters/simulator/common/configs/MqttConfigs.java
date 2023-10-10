@@ -1,18 +1,13 @@
 package com.intuit.demo.dataemitters.simulator.common.configs;
 
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intuit.demo.dataemitters.simulator.service.dto.Vehicle;
+import com.intuit.demo.dataemitters.simulator.service.dto.VehicleRealTimeEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 @Configuration
 @Component
@@ -50,7 +45,7 @@ public class MqttConfigs {
             @Override
             public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
                 try {
-                    log.info("message deliveryComplete {}", objectMapper.readValue(iMqttDeliveryToken.getMessage().getPayload(), Vehicle.class));
+                    log.info("message deliveryComplete {}", objectMapper.readValue(iMqttDeliveryToken.getMessage().getPayload(), VehicleRealTimeEvent.class));
                 } catch (Exception e) {
                     log.error("exception at deliveryComplete ", e);
                 }
