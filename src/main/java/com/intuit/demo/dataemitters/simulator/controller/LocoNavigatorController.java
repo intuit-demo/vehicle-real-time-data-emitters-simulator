@@ -23,23 +23,23 @@ public class LocoNavigatorController {
         this.registeredVehicleService = registeredVehicleService;
     }
 
-    @PostMapping(value= "/ignitionOn", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/ignitionOn", produces = MediaType.APPLICATION_JSON_VALUE)
     public void ignitionOn(@RequestBody com.intuit.demo.dataemitters.simulator.controller.model.RegisteredVehicle vehicleRegister) {
         log.info("request received with status ignitionOn vehicle {}", vehicleRegister);
         registeredVehicleService.ignitionOn(vehicleRegister.getRegistrationNumber());
     }
 
-    @PostMapping(value= "/ignitionOff", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/ignitionOff", produces = MediaType.APPLICATION_JSON_VALUE)
     public void ignitionOff(@RequestBody com.intuit.demo.dataemitters.simulator.controller.model.RegisteredVehicle vehicleRegister) {
         log.info("request received with status ignitionOff vehicle {}", vehicleRegister);
         registeredVehicleService.ignitionOff(vehicleRegister.getRegistrationNumber());
     }
 
     @Validated
-    @PostMapping(value= "/accelerate", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/accelerate", produces = MediaType.APPLICATION_JSON_VALUE)
     public void accelerate(@RequestBody @NonNull com.intuit.demo.dataemitters.simulator.controller.model.RegisteredVehicle vehicleRegister) {
         log.info("request received with status accelerate vehicle {}", vehicleRegister);
-        if(VehicleState.PRESS_ACCELERATE.equals(vehicleRegister.getVehicleState())) {
+        if (VehicleState.PRESS_ACCELERATE.equals(vehicleRegister.getVehicleState())) {
             registeredVehicleService.accelerate(vehicleRegister.getRegistrationNumber());
         } else {
             registeredVehicleService.slowDown(vehicleRegister.getRegistrationNumber());

@@ -37,6 +37,7 @@ public class MqttConfigs {
                     throw new RuntimeException(e);
                 }
             }
+
             @Override
             public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
                 log.info("message messageArrived {}", s);

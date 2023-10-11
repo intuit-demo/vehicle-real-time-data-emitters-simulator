@@ -15,10 +15,10 @@ public class GeoLocationService implements LocationService<Double, Double> {
     @Override
     public Tuple2<Double, Double> getCurrentLocation() {
         double multiplier = 10000L;
-        double latitude=(Math.random()*(90*multiplier))/multiplier;
-        double longitude=(Math.random()*(180*multiplier))/multiplier;
-        latitude *=(Math.floor(Math.random()*2) == 1)?1:-1;
-        longitude *=(Math.floor(Math.random()*2) == 1)?1:-1;
+        double latitude = (Math.random() * (90 * multiplier)) / multiplier;
+        double longitude = (Math.random() * (180 * multiplier)) / multiplier;
+        latitude *= (Math.floor(Math.random() * 2) == 1) ? 1 : -1;
+        longitude *= (Math.floor(Math.random() * 2) == 1) ? 1 : -1;
         return Tuples.of(latitude, longitude);
     }
 
@@ -35,7 +35,7 @@ public class GeoLocationService implements LocationService<Double, Double> {
         return Tuples.of(latitude, longitude);
     }
 
-    private  double getRandomDoubleInRange(double min, double max) {
+    private double getRandomDoubleInRange(double min, double max) {
         Random r = new Random();
         return min + (max - min) * r.nextDouble();
     }

@@ -7,14 +7,14 @@ import java.util.concurrent.*;
 
 @Slf4j
 @Service
-public class Scheduler  {
+public class Scheduler {
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
     private ConcurrentHashMap<String, ScheduledFuture> threadSafeMap = new ConcurrentHashMap<>();
 
     public boolean startScheduledExecutorService(String key, Runnable task) {
 
-        if(threadSafeMap.containsKey(key)) {
+        if (threadSafeMap.containsKey(key)) {
             //log.info("previously registered scheduler");
             return false;
         } else {
@@ -24,8 +24,8 @@ public class Scheduler  {
         }
     }
 
-    public void stopScheduledExecutorService(String key)  {
-        if(threadSafeMap.containsKey(key)) {
+    public void stopScheduledExecutorService(String key) {
+        if (threadSafeMap.containsKey(key)) {
             var s = threadSafeMap.get(key);
             s.cancel(true);
             threadSafeMap.remove(key);

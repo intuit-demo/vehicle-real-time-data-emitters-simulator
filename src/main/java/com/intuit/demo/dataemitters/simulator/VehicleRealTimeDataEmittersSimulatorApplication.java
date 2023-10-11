@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class VehicleRealTimeDataEmittersSimulatorApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(VehicleRealTimeDataEmittersSimulatorApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(VehicleRealTimeDataEmittersSimulatorApplication.class, args);
+    }
 
 }

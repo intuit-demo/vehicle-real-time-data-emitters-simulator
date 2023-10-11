@@ -45,7 +45,7 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
                 .build();
         threadSafeMap.computeIfAbsent(registrationNumber, (k) -> v);
         log.info("total vehicles running {}", threadSafeMap.size());
-        if(scheduler.startScheduledExecutorService(registrationNumber, () -> execute(registrationNumber, notificationService))) {
+        if (scheduler.startScheduledExecutorService(registrationNumber, () -> execute(registrationNumber, notificationService))) {
             log.info("vehicle state :: {} {}", v.getStatus(), v);
         }
     }
@@ -53,7 +53,7 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
     @Override
     public void ignitionOff(String registrationNumber) {
 
-        if(threadSafeMap.containsKey(registrationNumber)) {
+        if (threadSafeMap.containsKey(registrationNumber)) {
             var v = threadSafeMap.get(registrationNumber);
             v.setStatus(VehicleState.IGNITION_OFF.name());
             scheduler.stopScheduledExecutorService(registrationNumber);
@@ -65,7 +65,7 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
 
     @Override
     public void accelerate(String registrationNumber) {
-        if(threadSafeMap.containsKey(registrationNumber)) {
+        if (threadSafeMap.containsKey(registrationNumber)) {
             var v = threadSafeMap.get(registrationNumber);
             v.setStatus(VehicleState.PRESS_ACCELERATE.name());
         } else {
@@ -75,7 +75,7 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
 
     @Override
     public void slowDown(String registrationNumber) {
-        if(threadSafeMap.containsKey(registrationNumber)) {
+        if (threadSafeMap.containsKey(registrationNumber)) {
             var v = threadSafeMap.get(registrationNumber);
             v.setStatus(VehicleState.RELEASE_ACCELERATE.name());
         } else {
@@ -83,19 +83,19 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
         }
     }
 
-    private void execute(String registrationNumber, NotificationService notificationService)  {
+    private void execute(String registrationNumber, NotificationService notificationService) {
 
-        if(threadSafeMap.containsKey(registrationNumber)) {
+        if (threadSafeMap.containsKey(registrationNumber)) {
             var vehicle = threadSafeMap.get(registrationNumber);
             vehicle.setStatus(VehicleState.RUNNING.name());
 
-            for(;;) {
+            for (; ; ) {
                 try {
-                    if(threadSafeMap.containsKey(registrationNumber)) {
+                    if (threadSafeMap.containsKey(registrationNumber)) {
 
                         vehicle = threadSafeMap.get(registrationNumber);
 
-                        var tp =  locationService.getCurrentLocation(Tuples.of(vehicle.getLatitude(), vehicle.getLongitude()));
+                        var tp = locationService.getCurrentLocation(Tuples.of(vehicle.getLatitude(), vehicle.getLongitude()));
 
                         vehicle.getLastKnowGeoLocation().setLatitude(vehicle.getLatitude());
                         vehicle.getLastKnowGeoLocation().setLongitude(vehicle.getLongitude());
@@ -103,29 +103,29 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
                         vehicle.setLatitude(tp.getT1());
                         vehicle.setLongitude(tp.getT2());
 
-                        if(vehicle.getFuel() < 0) {
+                        if (vehicle.getFuel() < 0) {
                             vehicle.setStatus(VehicleState.BREAKDOWN.name());
                         }
-                        if(vehicle.getSpeed() < 0) {
+                        if (vehicle.getSpeed() < 0) {
                             vehicle.setStatus(VehicleState.PARKING.name());
                         }
-                        if(vehicle.getStatus().equals(VehicleState.PRESS_ACCELERATE.name())) {
+                        if (vehicle.getStatus().equals(VehicleState.PRESS_ACCELERATE.name())) {
                             vehicle.setSpeed(vehicle.getSpeed() + 1.00);
-                            if(vehicle.getFuel() > 0) {
+                            if (vehicle.getFuel() > 0) {
                                 vehicle.setFuel(vehicle.getFuel() - 0.5);
                             }
-                        } else if(vehicle.getStatus().equals(VehicleState.RELEASE_ACCELERATE.name())) {
+                        } else if (vehicle.getStatus().equals(VehicleState.RELEASE_ACCELERATE.name())) {
                             vehicle.setSpeed(vehicle.getSpeed() - 1.00);
-                            if(vehicle.getFuel() > 0) {
+                            if (vehicle.getFuel() > 0) {
                                 vehicle.setFuel(vehicle.getFuel() - 0.2);
                             }
                         } else {
-                            if(vehicle.getFuel() > 0) {
+                            if (vehicle.getFuel() > 0) {
                                 vehicle.setFuel(vehicle.getFuel() - 0.1);
                             }
                         }
                         log.info("vehicle state :: {} {}", threadSafeMap.get(registrationNumber).getStatus(), threadSafeMap.get(registrationNumber));
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } else {
                         break;
                     }
@@ -134,11 +134,11 @@ public class RoadVehicleServiceService implements RegisteredVehicleService {
                     log.info("vehicle state :: {} {}", threadSafeMap.get(registrationNumber).getStatus(), threadSafeMap.get(registrationNumber));
                 }
 
-                try{
+                try {
                     vehicle.setTimestamp(LocalDateTime.now(ZoneOffset.UTC).toString());
                     notificationService.publish(vehicle);
                 } catch (Exception e) {
-                    log.error("exception on publish",e);
+                    log.error("exception on publish", e);
                 }
             }
         } else {

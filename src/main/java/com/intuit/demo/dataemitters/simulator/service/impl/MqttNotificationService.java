@@ -15,9 +15,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class MqttNotificationService implements NotificationService<VehicleRealTimeEvent> {
 
+    private final MqttClient mqttClient;
     @Value("${mqtt.topic}")
     private String topic;
-    private final MqttClient mqttClient;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public MqttNotificationService(MqttClient mqttClient) {
